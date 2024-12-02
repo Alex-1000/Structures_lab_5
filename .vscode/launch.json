@@ -1,0 +1,41 @@
+{
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Test debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "test_runner.py",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}/build/sorts 1 5 -1000 10"
+            ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Interactive debug",
+            "program": "${workspaceFolder}/build/sorts",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "CLI debug",
+            "program": "${workspaceFolder}/build/sorts",
+            "args": [
+                "-sh",
+                "89,548065",
+                "237,917551",
+                "110,854109",
+                "258,201549",
+                "447,312167"
+            ],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
