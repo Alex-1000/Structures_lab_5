@@ -11,7 +11,7 @@
             "program": "test_runner.py",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}/build/sorts 1 5 -1000 10"
+                "${workspaceFolder}/build/sorts 3 10 0 10"
             ]
         },
         {
@@ -29,11 +29,11 @@
             "program": "${workspaceFolder}/build/sorts",
             "args": [
                 "-sh",
-                "89,548065",
-                "237,917551",
-                "110,854109",
-                "258,201549",
-                "447,312167"
+                "-782,449244",
+                "-113,842333",
+                "-35,519527",
+                "-298,678500",
+                "-970,727844"
             ],
             "cwd": "${workspaceFolder}"
         }

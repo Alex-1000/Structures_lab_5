@@ -9,41 +9,24 @@ enum SORTING_METHOD { SELECTION, SPLIT_INSERT, SHELL };
 
 #define DEFAULT_ALLOC_SIZE 4
 
-TwoWayNode* insertSort(TwoWayNode* array) {
-    TwoWayNode* node = LinkedTwoWayList_start(array);
-    TwoWayNode* sorted_array = LinkedTwoWayList_new(node->number);
-
-    for (node = node->next; node != NULL; node = node->next) {
-        int inserted = 0;
-        for (TwoWayNode* sorted_node = sorted_array; sorted_node != NULL;
-             sorted_node = sorted_node->prev) {
-            if (node->number >= sorted_node->number) {
-                LinkedTwoWayList_appendNumber(sorted_node, node->number);
-                sorted_array = LinkedTwoWayList_end(sorted_node);
-                inserted = 1;
-                break;
-            }
-        }
-        if (!inserted)
-            LinkedTwoWayList_insertNumber(LinkedTwoWayList_start(sorted_array),
-                                          node->number);
-    }
-
-    return sorted_array;
-}
-
+// Сортировка выбором
 TwoWayNode* selectionSort(TwoWayNode* array) {
+    // Копия массива
     array = LinkedTwoWayList_start(LinkedTwoWayList_copy(array));
-    TwoWayNode* sorted_array = NULL;
-    size_t sorted_length = 0;
+    // Длина изначального массива
     size_t length = LinkedTwoWayList_length(array);
+    TwoWayNode* sorted_array = NULL; // Отсортированный массив
+    size_t sorted_length = 0; // Длина отсортированного массива
 
+    // Заполняем массив n - 1 элементом
     for (size_t i = 0; i < length - 1; i++) {
+        // Находим минимальный элемент
         TwoWayNode* min = array;
         for (TwoWayNode* node = array->next; node != NULL; node = node->next)
             if (node->number < min->number)
                 min = node;
 
+        // Промежуточный вывод
         printf("%zu:", i);
         if (sorted_array != NULL) {
             printf(" ");
@@ -59,15 +42,22 @@ TwoWayNode* selectionSort(TwoWayNode* array) {
             printf(" %f", n->number);
         printf("\n");
 
+        // Добавляем элемент к массиву
         sorted_array = LinkedTwoWayList_appendNumber(sorted_array, min->number);
+        // Удаляем элемент из копии изначального массива
         if (min == array)
+            // При необходимости смещаем указатель на первый элемент (если
+            // первый элемент является минимальным)
             array = LinkedTwoWayList_remove(min);
         else
             LinkedTwoWayList_remove(min);
     }
+
+    // Добавляем последний оставшийся элемент и освобождаем память
     sorted_array = LinkedTwoWayList_appendNumber(sorted_array, array->number);
     free(array);
 
+    // Итоговый вывод
     printf("%zu: ", length - 1);
     for (TwoWayNode* n = LinkedTwoWayList_start(sorted_array); n != NULL;
          n = n->next)
@@ -79,10 +69,15 @@ TwoWayNode* selectionSort(TwoWayNode* array) {
 
 // Сортировка методом половинного деления
 TwoWayNode* splitInsertSort(TwoWayNode* array) {
+    // Начало исходного массива
     TwoWayNode* node = LinkedTwoWayList_start(array);
-    TwoWayNode* sorted_array = LinkedTwoWayList_new(node->number);
+    // Отсортированный массив
+    TwoWayNode* sorted_array =
+        LinkedTwoWayList_new(node->number); // Первый элемент задаётся сразу
 
+    // Проходим по исходному массиву
     for (node = node->next; node != NULL; node = node->next) {
+        // Промежуточный вывод
         for (TwoWayNode* n = sorted_array; n != NULL; n = n->next)
             printf("%f ", n->number);
         printf("|");
@@ -90,13 +85,20 @@ TwoWayNode* splitInsertSort(TwoWayNode* array) {
             printf(" %f", n->number);
         printf("\n");
 
+        // Начало рассматриваемого отрезка
         TwoWayNode* subarray_start = sorted_array;
+        // Конец рассматриваемого отрезка
         TwoWayNode* subarray_end = LinkedTwoWayList_end(sorted_array);
+        // Сближаем начало и конец отрезка, пока не найдём точку, слева или
+        // справа от которой должен быть новый элемент
         while (subarray_start != subarray_end) {
+            // Длина отрезка
             size_t dist =
                 LinkedTwoWayList_distance(subarray_start, subarray_end);
+            // Середина отрезка
             TwoWayNode* subarray_mid =
                 LinkedTwoWayList_at(subarray_start, dist / 2);
+            // Если начало и конец - соседние точки, то мы выбираем одну из них
             if (dist == 1) {
                 if (node->number < subarray_start->number) {
                     printf("%f < %f\n", node->number, subarray_mid->number);
@@ -106,17 +108,25 @@ TwoWayNode* splitInsertSort(TwoWayNode* array) {
                     subarray_start = subarray_end;
                     break;
                 }
-            } else if (node->number < subarray_mid->number) {
-                printf("%f < %f\n", node->number, subarray_mid->number);
-                subarray_end = subarray_mid;
-            } else if (node->number > subarray_mid->number) {
-                printf("%f > %f\n", node->number, subarray_mid->number);
-                subarray_start = subarray_mid;
             }
+            // Иначе мы делим отрезок пополам
+            else {
+                if (node->number < subarray_mid->number) {
+                    printf("%f < %f\n", node->number, subarray_mid->number);
+                    subarray_end = subarray_mid;
+                } else {
+                    printf("%f > %f\n", node->number, subarray_mid->number);
+                    subarray_start = subarray_mid;
+                }
+            }
+
+            // Промежуточный вывод
             for (TwoWayNode* n = subarray_start; n != subarray_end; n = n->next)
                 printf("%f ", n->number);
             printf("\n");
         }
+
+        // Вставляем элемент слева или справа от найденной точки
         if (node->number < subarray_start->number)
             LinkedTwoWayList_insertNumber(subarray_start, node->number);
         else if (node->number > subarray_start->number)
@@ -124,6 +134,7 @@ TwoWayNode* splitInsertSort(TwoWayNode* array) {
         sorted_array = LinkedTwoWayList_start(sorted_array);
     }
 
+    // Итоговый вывод
     for (TwoWayNode* n = sorted_array; n != NULL; n = n->next)
         printf("%f ", n->number);
     printf("\b\n");
@@ -131,54 +142,61 @@ TwoWayNode* splitInsertSort(TwoWayNode* array) {
     return sorted_array;
 }
 
+// Сортировка Шелла
 TwoWayNode* shellSort(TwoWayNode* array) {
+    // Отсортированный массив (копия исходного)
     TwoWayNode* sorted_array =
         LinkedTwoWayList_start(LinkedTwoWayList_copy(array));
+    // Длина массива
     size_t length = LinkedTwoWayList_length(sorted_array);
 
-    size_t step = length / 2;
-    for (size_t step = LinkedTwoWayList_length(array) / 2; step > 0;
-         step /= 2) {
-
+    // Делаем сортировки, пока шаг не станет нулевым (т.е. пока мы не сделали
+    // сортировку с шагом 1)
+    for (size_t step = length / 2; step > 0; step /= 2) {
+        // Промежуточный вывод (массив и шаг)
         for (TwoWayNode* n = sorted_array; n != NULL; n = n->next)
             printf("%f ", n->number);
         printf("// h = %zu\n", step);
 
-        TwoWayNode* subarrays[step];
-        TwoWayNode* sorted_sub;
-        for (size_t shift = 0; shift < step; shift++) {
-            subarrays[shift] = LinkedTwoWayList_new(
-                LinkedTwoWayList_at(sorted_array, shift)->number);
-            for (size_t i = step; shift + i < length; i += step) {
-                subarrays[shift] = LinkedTwoWayList_appendNumber(
-                    subarrays[shift],
-                    LinkedTwoWayList_at(sorted_array, shift + i)->number);
-            }
-            subarrays[shift] = LinkedTwoWayList_start(subarrays[shift]);
-        }
-
-        for (size_t shift = 0; shift < step; shift++) {
+        // Промежуточный вывод (сортируемые группы)
+        for (size_t i = 0; i < step; i++) {
             printf("[");
-            for (TwoWayNode* n = subarrays[shift]; n != NULL; n = n->next) {
-                printf("%f ", n->number);
-            }
+            for (size_t j = 0; i + j < length; j += step)
+                printf("%f ", LinkedTwoWayList_at(sorted_array, i + j)->number);
             printf("\b] ");
         }
         printf("\b\n");
 
-        for (size_t shift = 0; shift < step; shift++) {
-            sorted_sub = insertSort(subarrays[shift]);
-            free(subarrays[shift]);
-            subarrays[shift] = sorted_sub;
+        // Сортируем вставками элементы, смещаясь на шаг вместо 1
+        for (size_t i = 0; i < step; i++) {
+            for (size_t j = i + step; j < length; j += step) {
+                TwoWayNode* n = LinkedTwoWayList_at(sorted_array, j);
+                TwoWayNode* m = LinkedTwoWayList_at(sorted_array, j - step);
+                double tmp;
+                for (size_t k = j;
+                     k > i &&
+                     ((n = LinkedTwoWayList_at(sorted_array, k))->number <
+                      (m = LinkedTwoWayList_at(sorted_array, k - step))
+                          ->number);
+                     k -= step) {
+                    tmp = n->number;
+                    n->number = m->number;
+                    m->number = tmp;
+                }
+            }
         }
 
-        free(sorted_array);
-        sorted_array =
-            LinkedTwoWayList_start(LinkedTwoWayList_mergeCopy(step, subarrays));
-        for (size_t i = 0; i < step; i++)
-            free(subarrays[i]);
+        // Промежуточный вывод (отсортированные группы)
+        for (size_t i = 0; i < step; i++) {
+            printf("[");
+            for (size_t j = 0; i + j < length; j += step)
+                printf("%f ", LinkedTwoWayList_at(sorted_array, i + j)->number);
+            printf("\b] ");
+        }
+        printf("\b\n");
     }
 
+    // Итоговый вывод
     for (TwoWayNode* n = sorted_array; n != NULL; n = n->next)
         printf("%f ", n->number);
     printf("\b\n");
@@ -192,23 +210,27 @@ int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "ru_RU.UTF-8");
 
     double num_buffer;
+    // Работа с аргументами
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             char* arg = argv[i];
+            // Справка
             if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
                 printf("--selection\t| -s\tСортировка выбором\n");
                 printf("--split-insert\t| -si\tСортировка методом половинного "
                        "деления\n");
                 printf("--shell\t| -sh\tСортировка Шелла\n");
                 exit(0);
-            } else if (strcmp(arg, "--selection") == 0 ||
-                       strcmp(arg, "-s") == 0)
+            }
+            // Выбор алгоритма сортировки
+            else if (strcmp(arg, "--selection") == 0 || strcmp(arg, "-s") == 0)
                 sorting_method = SELECTION;
             else if (strcmp(arg, "--split-insert") == 0 ||
                      strcmp(arg, "-si") == 0)
                 sorting_method = SPLIT_INSERT;
             else if (strcmp(arg, "--shell") == 0 || strcmp(arg, "-sh") == 0)
                 sorting_method = SHELL;
+            // Ввод числа
             else {
                 num_buffer = atof(arg);
                 if (errno == ERANGE) {
@@ -219,8 +241,11 @@ int main(int argc, char* argv[]) {
                 array = LinkedTwoWayList_appendNumber(array, num_buffer);
             }
         }
-    } else {
-        printf("Выберите метод сортировки:\n1 - вставками\n2 - метод "
+    }
+    // Работа с клавиатурой
+    else {
+        // Выбор алгоритма сортировки
+        printf("Выберите метод сортировки:\n1 - выбором\n2 - метод "
                "половинного деления\n3 - сортировка Шелла\n> ");
         size_t line_length = DEFAULT_ALLOC_SIZE;
         char* line = (char*)malloc(sizeof(char) * DEFAULT_ALLOC_SIZE);
@@ -240,6 +265,7 @@ int main(int argc, char* argv[]) {
             }
         }
         free(line);
+        // Ввод чисел
         line = (char*)malloc(sizeof(char) * DEFAULT_ALLOC_SIZE);
         printf("Введите числа:\n> ");
         getline(&line, &line_length, stdin);
@@ -256,6 +282,7 @@ int main(int argc, char* argv[]) {
         }
         free(line);
     }
+
     TwoWayNode* sorted_array;
     switch (sorting_method) {
     case SELECTION:
