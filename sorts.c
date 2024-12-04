@@ -170,8 +170,8 @@ TwoWayNode* shellSort(TwoWayNode* array) {
         // Сортируем вставками элементы, смещаясь на шаг вместо 1
         for (size_t i = 0; i < step; i++) {
             for (size_t j = i + step; j < length; j += step) {
-                TwoWayNode* n = LinkedTwoWayList_at(sorted_array, j);
-                TwoWayNode* m = LinkedTwoWayList_at(sorted_array, j - step);
+                TwoWayNode* n;
+                TwoWayNode* m;
                 double tmp;
                 for (size_t k = j;
                      k > i &&
